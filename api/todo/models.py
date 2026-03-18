@@ -5,10 +5,10 @@ class Question:
     def __init__(self, title):
         self.title = title
 
-    def to_json(self):
+    def to_json(self, index):
         return {
-            'id': self.id,
-            'name': self.name,
+            'id': index,
+            'title': self.title,
         }
     
 class Questionnaire:
