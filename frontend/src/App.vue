@@ -1,87 +1,95 @@
 <script>
-import TodoItem from './components/TodoItem.vue';
+import QuestionnaireItem from './components/QuestionnaireItem.vue';
+
+const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires';
 
 export default {
-  components: { TodoItem },
+  components: { QuestionnaireItem },
   data() {
     return {
-      todos: [],
-      title: 'Mes questionnaires',
-      newItem: ''
+      questionnaires: [],
+      newQuizName: ''
     };
   },
   mounted() {
-    this.getAllTodos();
+    this.fetchQuestionnaires();
   },
   methods: {
-    getAllTodos() {
-      fetch('http://127.0.0.1:5000/quiz/api/v1.0/questionnaires')
-        .then(response => response.json())
-        .then(data => {
-          this.todos = data.questionnaires || [];
-        })
-        .catch(err => console.error("Erreur de récupération:", err));
+    // ---- GESTION DES QUESTIONNAIRES ----
+    async fetchQuestionnaires() {
+      let response = await fetch(API_URL);
+      let data = await response.json();
+      this.questionnaires = data.questionnaires || data;
     },
-
-    addItem() {
-      let text = this.newItem.trim();
-      if (text) {
-        fetch('http://127.0.0.1:5000/quiz/api/v1.0/questionnaires', {
+    
+    async addQuiz() {
+      let name = this.newQuizName.trim();
+      if (name) {
+        await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: text })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.questionnaire) {
-            this.todos.push(data.questionnaire);
-            this.newItem = '';
-          }
-        })
-        .catch(err => console.error("Erreur d'ajout:", err));
+          body: JSON.stringify({ name: name }) 
+        });
+        this.newQuizName = '';
+        this.fetchQuestionnaires(); 
       }
     },
+    
+    async removeQuiz(payload) {
+      await fetch(`${API_URL}/${payload.id}`, { method: 'DELETE' });
+      this.fetchQuestionnaires();
+    },
 
-    removeItem(id) {
-      if (id == null) {
-        console.error("Suppression impossible: id manquant");
-        return;
-      }
-      fetch(`http://127.0.0.1:5000/quiz/api/v1.0/questionnaires/${id}`, {
-        method: 'DELETE'
-      })
-      .then(response => response.json())
-      .then(() => {
-        this.todos = this.todos.filter(t => t.id !== id);
-      })
-      .catch(err => console.error("Erreur suppression:", err));
+    // Nouvelle méthode pour gérer la modification du nom via la pop-up
+    async updateQuiz(payload) {
+      await fetch(`${API_URL}/${payload.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: payload.name }) // On envoie le nouveau nom au serveur
+      });
+      this.fetchQuestionnaires();
+    },
+
+    // ---- GESTION DES QUESTIONS ----
+    async addQuestionToQuiz(payload) {
+      await fetch(`${API_URL}/${payload.quizId}/questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: payload.title }) 
+      });
+      this.fetchQuestionnaires();
+    },
+
+    async removeQuestionFromQuiz(payload) {
+      await fetch(`${API_URL}/${payload.quizId}/questions/${payload.number}`, { 
+        method: 'DELETE' 
+      });
+      this.fetchQuestionnaires();
     }
   }
 }
 </script>
 
 <template>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   
   <div class="container mt-4">
-    <h2 class="mb-4">{{ title }}</h2>
+    <h2>Édition des Quiz</h2>
     
-    <ol class="list-group mb-4">
-      <TodoItem 
-        v-for="todo in todos" 
-        :key="todo.id" 
-        :todo="todo"
-        @remove="removeItem"
-      />
-    </ol>
-
-    <div class="input-group">
-      <input v-model="newItem" 
-             @keyup.enter="addItem" 
-              placeholder="Ajouter un questionnaire" 
-             type="text"
-             class="form-control">
-      <button @click="addItem" class="btn btn-primary" type="button">Ajouter</button>
+    <div class="input-group mb-4">
+      <input v-model="newQuizName" @keyup.enter="addQuiz" placeholder="Nom du nouveau quiz" class="form-control">
+      <button @click="addQuiz" class="btn btn-primary">Créer le quiz</button>
     </div>
+
+    <ul class="p-0">
+      <QuestionnaireItem 
+        v-for="q in questionnaires" 
+        :key="q.id"
+        :questionnaire="q"
+        @remove-quiz="removeQuiz"
+        @update-quiz="updateQuiz"  @add-question="addQuestionToQuiz"
+        @remove-question="removeQuestionFromQuiz"
+      />
+    </ul>
   </div>
 </template>

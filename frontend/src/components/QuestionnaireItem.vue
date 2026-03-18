@@ -4,7 +4,8 @@ import QuestionItem from './QuestionItem.vue';
 export default {
   components: { QuestionItem },
   props: { questionnaire: Object },
-  emits: ['remove-quiz', 'add-question', 'remove-question'],
+  // On rajoute 'update-quiz' dans la liste des événements
+  emits: ['remove-quiz', 'update-quiz', 'add-question', 'remove-question'],
   data() {
     return {
       newQuestionTitle: ''
@@ -14,13 +15,20 @@ export default {
     supprQuiz() {
       this.$emit('remove-quiz', { id: this.questionnaire.id });
     },
+    // La méthode avec la pop-up pour modifier le nom
+    modifQuiz() {
+      let nouveauNom = prompt("Modifier le nom du quiz :", this.questionnaire.name);
+      if (nouveauNom !== null && nouveauNom.trim() !== '') {
+        this.$emit('update-quiz', { id: this.questionnaire.id, name: nouveauNom.trim() });
+      }
+    },
     ajouterQuestion() {
       if (this.newQuestionTitle.trim() !== '') {
         this.$emit('add-question', { 
           quizId: this.questionnaire.id, 
           title: this.newQuestionTitle.trim() 
         });
-        this.newQuestionTitle = '';
+        this.newQuestionTitle = ''; 
       }
     },
     supprimerQuestion(payload) {
@@ -37,7 +45,10 @@ export default {
   <li class="alert alert-info mt-4 list-unstyled">
     <div class="d-flex justify-content-between align-items-center">
       <h4 class="m-0">{{ questionnaire.name }}</h4> 
-      <button class="btn btn-danger btn-sm" @click="supprQuiz">Supprimer le Quiz</button>
+      <div>
+        <button class="btn btn-warning btn-sm me-2" @click="modifQuiz">Modifier le Quiz</button>
+        <button class="btn btn-danger btn-sm" @click="supprQuiz">Supprimer le Quiz</button>
+      </div>
     </div>
 
     <div class="mt-3 bg-white p-3 rounded text-dark">
