@@ -40,12 +40,11 @@ export default {
       this.fetchQuestionnaires();
     },
 
-    // Nouvelle méthode pour gérer la modification du nom via la pop-up
     async updateQuiz(payload) {
       await fetch(`${API_URL}/${payload.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: payload.name }) // On envoie le nouveau nom au serveur
+        body: JSON.stringify({ name: payload.name })
       });
       this.fetchQuestionnaires();
     },
