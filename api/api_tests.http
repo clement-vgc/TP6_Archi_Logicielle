@@ -1,0 +1,44 @@
+### Récupérer tous les questionnaires (GET)
+GET http://localhost:5000/quiz/api/v1.0/questionnaires
+
+### Créer un nouveau questionnaire : Maths (POST)
+POST http://localhost:5000/quiz/api/v1.0/questionnaires
+Content-Type: application/json
+
+{
+    "name": "Maths"
+}
+
+### Créer un autre questionnaire : Sport (POST)
+POST http://localhost:5000/quiz/api/v1.0/questionnaires
+Content-Type: application/json
+
+{
+    "name": "Sport"
+}
+
+### Récupérer un questionnaire spécifique par son ID (GET)
+# On utilise l'ID 1 (créé précédemment)
+GET http://localhost:5000/quiz/api/v1.0/questionnaires/1
+
+### Modifier le nom d'un questionnaire (PUT)
+PUT http://localhost:5000/quiz/api/v1.0/questionnaires/1
+Content-Type: application/json
+
+{
+    "name": "Mathématiques Avancées"
+}
+
+### Tester l'erreur de type sur le nom (PUT - Doit renvoyer 400)
+PUT http://localhost:5000/quiz/api/v1.0/questionnaires/1
+Content-Type: application/json
+
+{
+    "name": 12345
+}
+
+### Supprimer un questionnaire (DELETE)
+DELETE http://localhost:5000/quiz/api/v1.0/questionnaires/2
+
+### Tester la récupération d'un questionnaire inexistant (GET - Doit renvoyer 404)
+GET http://localhost:5000/quiz/api/v1.0/questionnaires/99
