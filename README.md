@@ -67,7 +67,8 @@ Linux/macOS:
 ```bash
 cd api
 source .venv/bin/activate
-flask --app todo run
+cd todo
+flask run
 ```
 
 Windows:
@@ -75,9 +76,10 @@ Windows:
 ```powershell
 cd api
 .\.venv\Scripts\Activate.ps1
-flask --app todo run
+cd todo
+flask run
 ```
-
+Ensuite il suffit de cliquer sur le lien :
 - http://127.0.0.1:5000/quiz/api/v1.0/questionnaires
 
 ### Terminal 2 - lancer le client frontend
@@ -86,6 +88,5 @@ flask --app todo run
 cd frontend
 npm run dev
 ```
-
-
+Cliquer sur le lien :
 - http://localhost:5173
