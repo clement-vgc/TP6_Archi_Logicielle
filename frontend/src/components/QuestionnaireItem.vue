@@ -4,18 +4,21 @@ import QuestionItem from './QuestionItem.vue';
 export default {
   components: { QuestionItem },
   props: { questionnaire: Object },
-  // On rajoute 'update-quiz' dans la liste des événements
-  emits: ['remove-quiz', 'update-quiz', 'add-question', 'remove-question'],
+  emits: ['remove-quiz', 'update-quiz', 'add-question', 'remove-question', 'update-question'],
   data() {
     return {
-      newQuestionTitle: ''
+      newQuestionTitle: '',
+      newQuestionType: 'question',
+      newQuestionReponse: '',
+      newQuestionP1: '',
+      newQuestionP2: '',
+      newQuestionBonneReponse: 1
     }
   },
   methods: {
     supprQuiz() {
       this.$emit('remove-quiz', { id: this.questionnaire.id });
     },
-    // La méthode avec la pop-up pour modifier le nom
     modifQuiz() {
       let nouveauNom = prompt("Modifier le nom du quiz :", this.questionnaire.name);
       if (nouveauNom !== null && nouveauNom.trim() !== '') {
@@ -24,17 +27,39 @@ export default {
     },
     ajouterQuestion() {
       if (this.newQuestionTitle.trim() !== '') {
+        const payload = {
+          quizId: this.questionnaire.id,
+          title: this.newQuestionTitle.trim(),
+          type: this.newQuestionType,
+          reponse: this.newQuestionReponse,
+          p1: this.newQuestionP1,
+          p2: this.newQuestionP2,
+          bonne_reponse: Number(this.newQuestionBonneReponse)
+        };
+
         this.$emit('add-question', { 
-          quizId: this.questionnaire.id, 
-          title: this.newQuestionTitle.trim() 
+          ...payload
         });
-        this.newQuestionTitle = ''; 
+
+        this.newQuestionTitle = '';
+        this.newQuestionType = 'question';
+        this.newQuestionReponse = '';
+        this.newQuestionP1 = '';
+        this.newQuestionP2 = '';
+        this.newQuestionBonneReponse = 1;
       }
     },
     supprimerQuestion(payload) {
       this.$emit('remove-question', { 
         quizId: this.questionnaire.id, 
-        number: payload.number 
+        id: payload.id 
+      });
+    },
+    modifierQuestion(payload) {
+      this.$emit('update-question', {
+        quizId: this.questionnaire.id,
+        id: payload.id,
+        data: payload.data
       });
     }
   }
@@ -56,15 +81,50 @@ export default {
       <ul class="list-group mb-3">
         <QuestionItem 
           v-for="q in questionnaire.questions" 
-          :key="q.number" 
+          :key="q.id" 
           :question="q" 
           @remove="supprimerQuestion"
+          @update="modifierQuestion"
         />
       </ul>
 
-      <div class="input-group input-group-sm">
+      <div class="mb-2">
+        <select v-model="newQuestionType" class="form-select form-select-sm">
+          <option value="question">Question simple</option>
+          <option value="ouverte">Question ouverte</option>
+          <option value="qcm">QCM</option>
+        </select>
+      </div>
+
+      <div class="input-group input-group-sm mb-2">
         <input v-model="newQuestionTitle" @keyup.enter="ajouterQuestion" placeholder="Texte de la nouvelle question" class="form-control">
-        <button @click="ajouterQuestion" class="btn btn-success">Ajouter question</button>
+      </div>
+
+      <div v-if="newQuestionType === 'ouverte'" class="input-group input-group-sm mb-2">
+        <input v-model="newQuestionReponse" placeholder="Réponse attendue" class="form-control">
+      </div>
+
+      <div v-if="newQuestionType === 'qcm'" class="row g-2 mb-2">
+        <div class="col-md-4">
+          <input v-model="newQuestionP1" placeholder="Proposition 1" class="form-control form-control-sm">
+        </div>
+        <div class="col-md-4">
+          <input v-model="newQuestionP2" placeholder="Proposition 2" class="form-control form-control-sm">
+        </div>
+        <div class="col-md-4">
+          <input
+            v-model.number="newQuestionBonneReponse"
+            type="number"
+            min="1"
+            max="2"
+            placeholder="Bonne réponse (1 ou 2)"
+            class="form-control form-control-sm"
+          >
+        </div>
+      </div>
+
+      <div>
+        <button @click="ajouterQuestion" class="btn btn-success btn-sm">Ajouter question</button>
       </div>
     </div>
   </li>
