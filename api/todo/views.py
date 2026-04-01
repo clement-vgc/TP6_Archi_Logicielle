@@ -23,8 +23,8 @@ def make_public_questionnaire(quiz):
 
 
 def build_question_payload(data):
-    question_type = data.get('type', 'question')
-    if question_type not in ('question', 'ouverte', 'qcm'):
+    question_type = data.get('type')
+    if question_type not in ('ouverte', 'qcm'):
         return None
 
     payload = {

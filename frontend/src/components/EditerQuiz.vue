@@ -7,7 +7,7 @@ export default {
   data() {
     return {
       questionnaires: [], selectedQuiz: null, newQuizName: '', newQuestionTitle: '',
-      newQuestionType: 'question', newOpenAnswers: [''],
+      newQuestionType: 'ouverte', newOpenAnswers: [''],
       newQcmChoices: [{ text: '', is_correct: false }, { text: '', is_correct: false }]
     };
   },
@@ -38,15 +38,8 @@ export default {
       await this.fetchQuestionnaires();
       if (this.selectedQuiz && this.selectedQuiz.id === id) this.selectedQuiz = null;
     },
-    async updateQuiz(id) {
-      const q = this.questionnaires.find((item) => item.id === id);
-      if (!q) return;
-      const newName = prompt('Modifier le nom du quiz :', q.name);
-      if (newName && newName.trim()) {
-        await fetch(`${API_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName.trim() }) });
-        await this.fetchQuestionnaires();
-        if (this.selectedQuiz && this.selectedQuiz.id === id) await this.fetchOneQuiz(id);
-      }
+    updateQuiz(id) {
+      this.$router.push(`/edition/${id}/modifier`);
     },
     async addQuestionToSelectedQuiz() {
       if (!this.selectedQuiz || !this.newQuestionTitle.trim()) return;
@@ -60,7 +53,7 @@ export default {
         if (!payload.propositions.some(c => c.is_correct)) return alert('Cochez au moins une bonne réponse.');
       }
       await fetch(`${API_URL}/${this.selectedQuiz.id}/questions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      this.newQuestionTitle = ''; this.newQuestionType = 'question'; this.newOpenAnswers = ['']; this.newQcmChoices = [{ text: '', is_correct: false }, { text: '', is_correct: false }];
+      this.newQuestionTitle = ''; this.newQuestionType = 'ouverte'; this.newOpenAnswers = ['']; this.newQcmChoices = [{ text: '', is_correct: false }, { text: '', is_correct: false }];
       await this.fetchOneQuiz(this.selectedQuiz.id); await this.fetchQuestionnaires();
     },
     async removeQuestionFromSelectedQuiz(payload) {
@@ -108,12 +101,11 @@ export default {
             <h4 class="card-title mb-3">Quiz consulté: {{ selectedQuiz.name }}</h4>
             <h5>Questions</h5>
             <ul class="list-group mb-3">
-              <QuestionItem v-for="question in selectedQuiz.questions" :key="question.id" :question="question" @remove="removeQuestionFromSelectedQuiz" @update="updateQuestionInSelectedQuiz" />
+              <QuestionItem v-for="question in selectedQuiz.questions" :key="question.id" :question="question" :canEdit="false" @remove="removeQuestionFromSelectedQuiz" @update="updateQuestionInSelectedQuiz" />
             </ul>
             <h6 class="mb-2 mt-4 text-primary">Ajouter une question</h6>
             <div class="mb-2">
               <select v-model="newQuestionType" class="form-select form-select-sm">
-                <option value="question">Question simple</option>
                 <option value="ouverte">Question ouverte</option>
                 <option value="qcm">QCM</option>
               </select>
