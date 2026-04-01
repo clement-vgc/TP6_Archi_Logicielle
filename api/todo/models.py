@@ -116,5 +116,37 @@ def delete_questionnaire(qid):
     questionnaires = [q for q in questionnaires if q.id != qid]
 
 
-create_questionnaire("français")
-create_questionnaire("géo")
+quiz_fr = create_questionnaire("français")
+quiz_geo = create_questionnaire("géo")
+
+if quiz_fr:
+    quiz_fr.add_question(
+        "Quel est le temps verbal dans la phrase 'Ils mangeront demain' ?",
+        "ouverte",
+        bonnes_reponses=["futur simple", "futur"]
+    )
+    quiz_fr.add_question(
+        "Parmi ces mots, lequel est un adjectif ?",
+        "qcm",
+        propositions=[
+            {"text": "rapidement", "is_correct": False},
+            {"text": "bleu", "is_correct": True},
+            {"text": "courir", "is_correct": False}
+        ]
+    )
+
+if quiz_geo:
+    quiz_geo.add_question(
+        "Quelle est la capitale de l'Italie ?",
+        "ouverte",
+        bonnes_reponses=["rome"]
+    )
+    quiz_geo.add_question(
+        "Quel continent abrite le désert du Sahara ?",
+        "qcm",
+        propositions=[
+            {"text": "Amérique du Sud", "is_correct": False},
+            {"text": "Asie", "is_correct": False},
+            {"text": "Afrique", "is_correct": True}
+        ]
+    )
