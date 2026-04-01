@@ -96,17 +96,28 @@ def get_questionnaire_by_id(qid):
 
 
 def get_questionnaires_by_name(name):
+    normalized_name = name.strip().lower() if isinstance(name, str) else ''
+    if not normalized_name:
+        return None
+
     for q in questionnaires:
-        if q.name.lower() == name.lower():
+        if q.name.strip().lower() == normalized_name:
             return q
     return None
 
 
 def create_questionnaire(name):
-    if get_questionnaires_by_name(name):
+    if not isinstance(name, str):
         return None
 
-    new_q = Questionnaire(name)
+    clean_name = name.strip()
+    if not clean_name:
+        return None
+
+    if get_questionnaires_by_name(clean_name):
+        return None
+
+    new_q = Questionnaire(clean_name)
     questionnaires.append(new_q)
     return new_q
 

@@ -2,7 +2,7 @@ from flask import jsonify, abort, make_response, request, url_for, redirect
 from .app import app
 from .models import (
     get_all_questionnaires, get_questionnaire_by_id, 
-    create_questionnaire, delete_questionnaire
+    create_questionnaire, delete_questionnaire, get_questionnaires_by_name
 )
 
 
@@ -121,6 +121,9 @@ def get_one_questionnaire(qid):
 def add_questionnaire():
     if not request.json or 'name' not in request.json:
         abort(400)
+    if not isinstance(request.json['name'], str):
+        abort(400)
+
     new_q = create_questionnaire(request.json['name'])
     if new_q is None:
         return make_response(jsonify({'error': 'Ce nom de questionnaire existe déjà'}), 409)
@@ -143,10 +146,20 @@ def update_questionnaire(qid):
     if not request.json:
         abort(400)
         
-    if 'name' in request.json and not isinstance(request.json['name'], str):
-        abort(400)
-        
-    q.name = request.json.get('name', q.name)
+    if 'name' in request.json:
+        if not isinstance(request.json['name'], str):
+            abort(400)
+
+        new_name = request.json['name'].strip()
+        if not new_name:
+            abort(400)
+
+        existing = get_questionnaires_by_name(new_name)
+        if existing is not None and existing.id != q.id:
+            return make_response(jsonify({'error': 'Ce nom de questionnaire existe déjà'}), 409)
+
+        q.name = new_name
+
     return jsonify({'questionnaire': make_public_questionnaire(q)})
 
 @app.route('/quiz/api/v1.0/questionnaires/<int:qid>', methods=['DELETE'])
