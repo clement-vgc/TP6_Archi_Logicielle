@@ -115,7 +115,7 @@ export default {
 
       <div class="d-flex gap-2">
         <button v-if="canEdit" class="btn btn-warning btn-sm" @click="startEdit">Modifier</button>
-        <button class="btn btn-danger btn-sm" @click="suppr">Supprimer</button>
+        <button v-if="canEdit" class="btn btn-danger btn-sm" @click="suppr">Supprimer</button>
       </div>
     </div>
 

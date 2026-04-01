@@ -1,18 +1,32 @@
 <script>
 import QuestionAdminItem from './QuestionAdminItem.vue';
+import { isAuthenticated } from '../auth.js';
 const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires';
 
 export default {
   components: { QuestionAdminItem },
   data() {
     return {
+      isLoggedIn: false,
       questionnaires: [], selectedQuiz: null, newQuestionTitle: '',
       newQuestionType: 'ouverte', newOpenAnswers: [''],
       newQcmChoices: [{ text: '', is_correct: false }, { text: '', is_correct: false }]
     };
   },
-  mounted() { this.fetchQuestionnaires(); },
+  mounted() {
+    this.refreshAuthState();
+    window.addEventListener('auth-changed', this.refreshAuthState);
+    window.addEventListener('storage', this.refreshAuthState);
+    this.fetchQuestionnaires();
+  },
+  beforeUnmount() {
+    window.removeEventListener('auth-changed', this.refreshAuthState);
+    window.removeEventListener('storage', this.refreshAuthState);
+  },
   methods: {
+    refreshAuthState() {
+      this.isLoggedIn = isAuthenticated();
+    },
     async fetchQuestionnaires() {
       let response = await fetch(API_URL);
       let data = await response.json();
@@ -31,16 +45,28 @@ export default {
     },
     
     allerVersCreation() {
+      if (!this.isLoggedIn) {
+        alert('Connexion requise pour créer un quiz.');
+        return;
+      }
       this.$router.push('/edition/creer');
     },
 
     async removeQuiz(id) {
+      if (!this.isLoggedIn) {
+        alert('Connexion requise pour supprimer un quiz.');
+        return;
+      }
       if (!confirm('Confirmer la suppression de ce questionnaire ?')) return;
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       await this.fetchQuestionnaires();
       if (this.selectedQuiz && this.selectedQuiz.id === id) this.selectedQuiz = null;
     },
     updateQuiz(id) {
+      if (!this.isLoggedIn) {
+        alert('Connexion requise pour modifier un quiz.');
+        return;
+      }
       this.$router.push(`/edition/${id}/modifier`);
     },
     async addQuestionToSelectedQuiz() {
@@ -79,8 +105,12 @@ export default {
 <template>
   <div class="mt-4">
     <h2 class="mb-4">Gestion des quiz</h2>
+
+    <div v-if="!isLoggedIn" class="alert alert-info">
+      Mode consultation: connectez-vous pour créer, modifier ou supprimer des quiz.
+    </div>
     
-    <div class="mb-4">
+    <div class="mb-4" v-if="isLoggedIn">
       <button @click="allerVersCreation" class="btn btn-success">+ Créer un nouveau quiz</button>
     </div>
 
@@ -92,8 +122,8 @@ export default {
             <div><div class="fw-semibold">{{ q.name }}</div><small class="text-muted">ID: {{ q.id }}</small></div>
             <div class="d-flex gap-2">
               <button class="btn btn-primary btn-sm" @click="consulterQuiz(q.id)">Consulter</button>
-              <button class="btn btn-warning btn-sm" @click="updateQuiz(q.id)">Modifier</button>
-              <button class="btn btn-danger btn-sm" @click="removeQuiz(q.id)">Supprimer</button>
+              <button v-if="isLoggedIn" class="btn btn-warning btn-sm" @click="updateQuiz(q.id)">Modifier</button>
+              <button v-if="isLoggedIn" class="btn btn-danger btn-sm" @click="removeQuiz(q.id)">Supprimer</button>
             </div>
           </li>
         </ul>
