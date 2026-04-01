@@ -19,13 +19,12 @@ export default {
       });
 
       if (!response.ok) {
-        alert("Erreur lors de la création du quiz. Le nom existe peut-être déjà.");
+        alert("Erreur lors de la création du quiz. Le nom existe déjà.");
         return;
       }
       
       const data = await response.json();
       
-      // On redirige directement vers la page de modification du nouveau quiz
       if (data.questionnaire && data.questionnaire.id) {
           this.$router.push(`/edition/${data.questionnaire.id}/modifier`);
       } else {
@@ -33,7 +32,6 @@ export default {
       }
     },
     retourVersEdition() {
-      // On ajoute fromModifier pour contourner la demande de mot de passe
       this.$router.push({ path: '/edition', query: { fromModifier: '1' } });
     }
   }

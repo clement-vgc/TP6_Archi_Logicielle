@@ -6,7 +6,6 @@ export default {
   components: { QuestionAdminItem },
   data() {
     return {
-      // newQuizName a été supprimé d'ici
       questionnaires: [], selectedQuiz: null, newQuestionTitle: '',
       newQuestionType: 'ouverte', newOpenAnswers: [''],
       newQcmChoices: [{ text: '', is_correct: false }, { text: '', is_correct: false }]
@@ -31,7 +30,6 @@ export default {
       this.$router.push(`/edition/${id}/consulter`);
     },
     
-    // NOUVELLE METHODE POUR LE BOUTON
     allerVersCreation() {
       this.$router.push('/edition/creer');
     },
