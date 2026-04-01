@@ -162,6 +162,7 @@ export default {
           :key="questionCourante.id"
           :question="questionCourante"
           :index="currentQuestionIndex"
+          :valeurPrecedente="reponsesUtilisateur[questionCourante.id]" 
           @reponse="noterReponse"
         />
         

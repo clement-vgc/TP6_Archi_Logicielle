@@ -2,12 +2,13 @@
 export default {
   props: {
     question: Object,
-    index: Number
+    index: Number,
+    valeurPrecedente: String
   },
   emits: ['reponse'],
   data() {
     return {
-      userAnswer: ''
+      userAnswer: this.valeurPrecedente || ''
     }
   },
   methods: {
