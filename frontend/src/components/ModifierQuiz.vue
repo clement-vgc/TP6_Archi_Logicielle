@@ -55,7 +55,7 @@ export default {
       });
 
       if (!response.ok) {
-        alert('Impossible de modifier le nom du quiz.');
+        alert('Impossible de modifier le nom du quiz, il existe déjà.');
         return;
       }
 
