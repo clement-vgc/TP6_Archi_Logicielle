@@ -18,6 +18,7 @@ export default {
   },
   methods: {
     suppr() {
+      if (!confirm('Confirmer la suppression de cette question ?')) return;
       this.$emit('remove', { id: this.question.id });
     },
 
