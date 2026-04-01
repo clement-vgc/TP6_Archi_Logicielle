@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import JouerQuiz from './components/JouerQuiz.vue'
 import EditerQuiz from './components/EditerQuiz.vue'
 import ModifierQuiz from './components/ModifierQuiz.vue'
+import CreerQuiz from './components/CreerQuiz.vue'
 
 const routes = [
   { path: '/', redirect: '/joueur' },
@@ -27,6 +28,10 @@ const routes = [
   {
     path: '/edition/:id/modifier',
     component: ModifierQuiz
+  },
+  {
+    path: '/edition/creer',
+    component: CreerQuiz
   }
 ]
 
