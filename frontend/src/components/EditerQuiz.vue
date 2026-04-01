@@ -1,9 +1,9 @@
 <script>
-import QuestionItem from './QuestionItem.vue';
+import QuestionAdminItem from './QuestionAdminItem.vue';
 const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires';
 
 export default {
-  components: { QuestionItem },
+  components: { QuestionAdminItem },
   data() {
     return {
       // newQuizName a été supprimé d'ici
@@ -104,7 +104,7 @@ export default {
             <h4 class="card-title mb-3">Quiz consulté: {{ selectedQuiz.name }}</h4>
             <h5>Questions</h5>
             <ul class="list-group mb-3">
-              <QuestionItem v-for="question in selectedQuiz.questions" :key="question.id" :question="question" :canEdit="false" @remove="removeQuestionFromSelectedQuiz" @update="updateQuestionInSelectedQuiz" />
+              <QuestionAdminItem v-for="question in selectedQuiz.questions" :key="question.id" :question="question" :canEdit="false" @remove="removeQuestionFromSelectedQuiz" @update="updateQuestionInSelectedQuiz" />
             </ul>
             <h6 class="mb-2 mt-4 text-primary">Ajouter une question</h6>
             <div class="mb-2">
