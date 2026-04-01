@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import JouerQuiz from './components/JouerQuiz.vue'
 import EditerQuiz from './components/EditerQuiz.vue'
 import ModifierQuiz from './components/ModifierQuiz.vue'
-import CreerQuiz from './components/CreerQuiz.vue'
+import ConsulterQuiz from './components/ConsulterQuiz.vue'
 
 const routes = [
   { path: '/', redirect: '/joueur' },
@@ -15,7 +15,6 @@ const routes = [
         next();
         return;
       }
-
       let mdp = prompt("Mot de passe requis ('admin') :");
       if (mdp === 'admin') {
         next();
@@ -30,8 +29,8 @@ const routes = [
     component: ModifierQuiz
   },
   {
-    path: '/edition/creer',
-    component: CreerQuiz
+    path: '/edition/:id/consulter',
+    component: ConsulterQuiz
   }
 ]
 

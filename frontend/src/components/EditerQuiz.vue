@@ -27,7 +27,9 @@ export default {
       if (response.ok) this.selectedQuiz = (await response.json()).questionnaire;
       else this.selectedQuiz = null;
     },
-    async consulterQuiz(qid) { await this.fetchOneQuiz(qid); },
+    consulterQuiz(id) {
+      this.$router.push(`/edition/${id}/consulter`);
+    },
     
     // NOUVELLE METHODE POUR LE BOUTON
     allerVersCreation() {
