@@ -31,7 +31,7 @@ const routes = [
   {
     path: '/edition/:id/consulter',
     component: ConsulterQuiz
-  }
+  },
 ]
 
 const router = createRouter({
