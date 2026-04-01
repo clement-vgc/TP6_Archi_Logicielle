@@ -6,7 +6,8 @@ export default {
   components: { QuestionItem },
   data() {
     return {
-      questionnaires: [], selectedQuiz: null, newQuizName: '', newQuestionTitle: '',
+      // newQuizName a été supprimé d'ici
+      questionnaires: [], selectedQuiz: null, newQuestionTitle: '',
       newQuestionType: 'ouverte', newOpenAnswers: [''],
       newQcmChoices: [{ text: '', is_correct: false }, { text: '', is_correct: false }]
     };
@@ -27,12 +28,12 @@ export default {
       else this.selectedQuiz = null;
     },
     async consulterQuiz(qid) { await this.fetchOneQuiz(qid); },
-    async addQuiz() {
-      if (this.newQuizName.trim()) {
-        await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: this.newQuizName.trim() }) });
-        this.newQuizName = ''; await this.fetchQuestionnaires();
-      }
+    
+    // NOUVELLE METHODE POUR LE BOUTON
+    allerVersCreation() {
+      this.$router.push('/edition/creer');
     },
+
     async removeQuiz(id) {
       if (!confirm('Confirmer la suppression de ce questionnaire ?')) return;
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
@@ -78,10 +79,11 @@ export default {
 <template>
   <div class="mt-4">
     <h2 class="mb-4">Gestion des quiz</h2>
-    <div class="input-group mb-4">
-      <input v-model="newQuizName" @keyup.enter="addQuiz" placeholder="Nom du nouveau quiz" class="form-control">
-      <button @click="addQuiz" class="btn btn-primary">Créer le quiz</button>
+    
+    <div class="mb-4">
+      <button @click="allerVersCreation" class="btn btn-success">+ Créer un nouveau quiz</button>
     </div>
+
     <div class="row g-4">
       <div class="col-lg-5">
         <h4 class="mb-3">Liste des quiz</h4>
