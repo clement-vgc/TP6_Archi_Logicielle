@@ -64,6 +64,12 @@ export default {
       this.score = points;
       this.quizTermine = true;
     },
+
+    recommencerQuiz() {
+      this.reponsesUtilisateur = {};
+      this.score = null;
+      this.quizTermine = false;
+    },
     
     retourMenu() {
         this.quizActuel = null;
@@ -111,7 +117,10 @@ export default {
       <div v-else class="alert alert-success mt-4">
         <h4 class="alert-heading">Quiz terminé !</h4>
         <p class="mb-0">Votre score est de <strong>{{ score }} / {{ quizActuel.questions.length }}</strong>.</p>
-        <button class="btn btn-primary mt-3" @click="retourMenu">Retour à la liste</button>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-warning" @click="recommencerQuiz">Recommencer ce quiz</button>
+          <button class="btn btn-primary" @click="retourMenu">Retour à la liste</button>
+        </div>
       </div>
     </div>
   </div>
