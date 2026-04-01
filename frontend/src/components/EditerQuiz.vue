@@ -34,6 +34,7 @@ export default {
       }
     },
     async removeQuiz(id) {
+      if (!confirm('Confirmer la suppression de ce questionnaire ?')) return;
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       await this.fetchQuestionnaires();
       if (this.selectedQuiz && this.selectedQuiz.id === id) this.selectedQuiz = null;
