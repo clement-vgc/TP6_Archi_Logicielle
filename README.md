@@ -10,14 +10,6 @@ Application de gestion de quiz avec:
 - Python 3.10+ (ou version proche)
 - Node.js 18+ et npm
 
-Verifier les versions:
-
-```bash
-python3 --version
-node --version
-npm --version
-```
-
 ## 2) Installation
 
 Depuis la racine du projet:
