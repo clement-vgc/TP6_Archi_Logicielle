@@ -1,10 +1,10 @@
 <script>
-import QuestionItem from './QuestionItem.vue';
+import QuestionAdminItem from './QuestionAdminItem.vue';
 
 const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires';
 
 export default {
-  components: { QuestionItem },
+  components: { QuestionAdminItem },
   data() {
     return {
       quiz: null,
@@ -192,7 +192,7 @@ export default {
 
         <h5>Questions existantes</h5>
         <ul class="list-group mb-4">
-          <QuestionItem
+          <QuestionAdminItem
             v-for="question in quiz.questions"
             :key="question.id"
             :question="question"
