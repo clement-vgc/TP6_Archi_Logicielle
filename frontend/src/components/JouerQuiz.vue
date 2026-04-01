@@ -1,7 +1,7 @@
 <script>
 import RepondreQuizItem from './RepondreQuizItem.vue';
 
-const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires';
+const API_URL = 'http://127.0.0.1:5000/quiz/api/v1.0/questionnaires'
 
 export default {
   components: { RepondreQuizItem },
@@ -11,8 +11,20 @@ export default {
       quizActuel: null,
       reponsesUtilisateur: {},
       score: null,
-      quizTermine: false
+      quizTermine: false,
+      currentQuestionIndex: 0,
+      resultatsDetailles: [] 
     };
+  },
+  computed: {
+    questionCourante() {
+      if (!this.quizActuel || !this.quizActuel.questions) return null;
+      return this.quizActuel.questions[this.currentQuestionIndex];
+    },
+    estDerniereQuestion() {
+      if (!this.quizActuel || !this.quizActuel.questions) return false;
+      return this.currentQuestionIndex === this.quizActuel.questions.length - 1;
+    }
   },
   mounted() {
     this.chargerQuestionnaires();
@@ -21,44 +33,78 @@ export default {
     async chargerQuestionnaires() {
       let response = await fetch(API_URL);
       let data = await response.json();
-      this.questionnaires = data.questionnaires;
+      this.questionnaires = data.questionnaires || data;
     },
     
-    demarrerQuiz(quiz) {
-      this.quizActuel = quiz;
-      this.reponsesUtilisateur = {};
-      this.score = null;
-      this.quizTermine = false;
+    async demarrerQuiz(quizBase) {
+      try {
+        let response = await fetch(`${API_URL}/${quizBase.id}`);
+        let data = await response.json();
+        
+        this.quizActuel = data.questionnaire || data;
+        
+        if (!this.quizActuel.questions) {
+          this.quizActuel.questions = [];
+        }
+
+        this.reponsesUtilisateur = {};
+        this.score = null;
+        this.quizTermine = false;
+        this.currentQuestionIndex = 0;
+        this.resultatsDetailles = [];
+      } catch (error) {
+        console.error("Erreur lors de la récupération du quiz :", error);
+        alert("Impossible de charger les questions de ce quiz.");
+      }
     },
 
     noterReponse(payload) {
       this.reponsesUtilisateur[payload.questionId] = payload.answer;
     },
 
+    questionSuivante() {
+      if (!this.estDerniereQuestion) this.currentQuestionIndex++;
+    },
+
+    questionPrecedente() {
+      if (this.currentQuestionIndex > 0) this.currentQuestionIndex--;
+    },
+
     terminerQuiz() {
       let points = 0;
+      this.resultatsDetailles = [];
       
       this.quizActuel.questions.forEach(q => {
-        let reponseDonnee = this.reponsesUtilisateur[q.id];
-        
-        if (!reponseDonnee) return; 
+        let reponseDonnee = this.reponsesUtilisateur[q.id] || "Aucune réponse";
+        let estCorrect = false;
+        let bonneReponseAttendue = "";
 
         if (q.type === 'qcm') {
-          let bonneReponse = q.propositions.find(p => p.is_correct);
-          if (bonneReponse && reponseDonnee === bonneReponse.text) {
-            points++;
+          let bonneProp = q.propositions.find(p => p.is_correct);
+          if (bonneProp) {
+            bonneReponseAttendue = bonneProp.text;
+            if (reponseDonnee === bonneProp.text) {
+              estCorrect = true;
+            }
           }
         } else if (q.type === 'ouverte') {
-          let repUserLower = reponseDonnee.toLowerCase().trim();
-          
-          let estCorrect = q.bonnes_reponses.some(bonneRep => 
-            bonneRep.toLowerCase().trim() === repUserLower
-          );
-          
-          if (estCorrect) {
-            points++;
+          bonneReponseAttendue = q.bonnes_reponses.join(" ou ");
+          if (reponseDonnee !== "Aucune réponse") {
+            let repUserLower = reponseDonnee.toLowerCase().trim();
+            estCorrect = q.bonnes_reponses.some(bonneRep => 
+              bonneRep.toLowerCase().trim() === repUserLower
+            );
           }
         }
+
+        if (estCorrect) points++;
+
+        this.resultatsDetailles.push({
+          titre: q.title,
+          reponseUser: reponseDonnee,
+          correct: estCorrect,
+          reponseAttendue: bonneReponseAttendue
+        });
       });
 
       this.score = points;
@@ -69,6 +115,8 @@ export default {
       this.reponsesUtilisateur = {};
       this.score = null;
       this.quizTermine = false;
+      this.currentQuestionIndex = 0;
+      this.resultatsDetailles = [];
     },
     
     retourMenu() {
@@ -104,20 +152,55 @@ export default {
       </div>
 
       <div v-if="!quizTermine">
+        
+        <div class="mb-3 text-muted">
+          Question {{ currentQuestionIndex + 1 }} sur {{ quizActuel.questions.length }}
+        </div>
+
         <RepondreQuizItem 
-          v-for="(question, index) in quizActuel.questions" 
-          :key="question.id" 
-          :question="question"
-          :index="index"
+          v-if="questionCourante"
+          :key="questionCourante.id"
+          :question="questionCourante"
+          :index="currentQuestionIndex"
           @reponse="noterReponse"
         />
-        <button class="btn btn-success mt-3" @click="terminerQuiz">Valider mes réponses</button>
+        
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-secondary" :disabled="currentQuestionIndex === 0" @click="questionPrecedente">Précédent</button>
+          
+          <button v-if="!estDerniereQuestion" class="btn btn-primary" @click="questionSuivante">Suivant</button>
+          <button v-else class="btn btn-success" @click="terminerQuiz">Terminer le quiz</button>
+        </div>
       </div>
 
-      <div v-else class="alert alert-success mt-4">
-        <h4 class="alert-heading">Quiz terminé !</h4>
-        <p class="mb-0">Votre score est de <strong>{{ score }} / {{ quizActuel.questions.length }}</strong>.</p>
-        <div class="d-flex gap-2 mt-3">
+      <div v-else class="mt-4">
+        <div class="alert alert-success">
+          <h4 class="alert-heading">Quiz terminé !</h4>
+          <p class="mb-0">Votre score est de <strong>{{ score }} / {{ quizActuel.questions.length }}</strong>.</p>
+        </div>
+
+        <h4 class="mt-4 mb-3">Résumé de vos réponses</h4>
+        <ul class="list-group mb-4">
+          <li 
+            v-for="(res, idx) in resultatsDetailles" 
+            :key="idx" 
+            class="list-group-item"
+            :class="res.correct ? 'list-group-item-success' : 'list-group-item-danger'"
+          >
+            <h6 class="mb-1 fw-bold">Q{{ idx + 1 }} : {{ res.titre }}</h6>
+            <div class="mb-1">
+              <span>Votre réponse : </span> 
+              <strong>{{ res.reponseUser }}</strong>
+            </div>
+            
+            <div v-if="!res.correct" class="text-danger mt-2">
+              <span class="fw-bold">Réponse attendue : </span> 
+              <u>{{ res.reponseAttendue }}</u>
+            </div>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2">
           <button class="btn btn-warning" @click="recommencerQuiz">Recommencer ce quiz</button>
           <button class="btn btn-primary" @click="retourMenu">Retour à la liste</button>
         </div>
