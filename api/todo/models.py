@@ -8,7 +8,6 @@ class Question:
         global next_question_id
         self.id = next_question_id
         self.title = title
-        self.type = "question"
         next_question_id += 1
 
     def to_json(self, index):
@@ -62,7 +61,7 @@ class Questionnaire:
     def add_question(
         self,
         title,
-        question_type="question",
+        question_type="ouverte",
         bonnes_reponses=None,
         propositions=None,
     ):
@@ -71,7 +70,7 @@ class Questionnaire:
         elif question_type == "qcm":
             new_q = QuestionQCM(title, propositions)
         else:
-            new_q = Question(title)
+            return None
 
         self.questions.append(new_q)
         return new_q

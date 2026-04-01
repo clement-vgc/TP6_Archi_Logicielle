@@ -58,10 +58,6 @@ export default {
           if (estCorrect) {
             points++;
           }
-        } else {
-            if (q.answer && q.answer.toLowerCase().trim() === reponseDonnee.toLowerCase().trim()) {
-                points++;
-            }
         }
       });
 

@@ -1,6 +1,12 @@
 <script>
 export default {
-  props: { question: Object },
+  props: {
+    question: Object,
+    canEdit: {
+      type: Boolean,
+      default: true
+    }
+  },
   emits: ['remove', 'update'],
   data() {
     return {
@@ -107,7 +113,7 @@ export default {
       </div>
 
       <div class="d-flex gap-2">
-        <button class="btn btn-warning btn-sm" @click="startEdit">Modifier</button>
+        <button v-if="canEdit" class="btn btn-warning btn-sm" @click="startEdit">Modifier</button>
         <button class="btn btn-danger btn-sm" @click="suppr">Supprimer</button>
       </div>
     </div>
