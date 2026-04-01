@@ -41,17 +41,25 @@ export default {
       this.quizActuel.questions.forEach(q => {
         let reponseDonnee = this.reponsesUtilisateur[q.id];
         
+        if (!reponseDonnee) return; 
+
         if (q.type === 'qcm') {
           let bonneReponse = q.propositions.find(p => p.is_correct);
           if (bonneReponse && reponseDonnee === bonneReponse.text) {
             points++;
           }
         } else if (q.type === 'ouverte') {
-          if (q.bonnes_reponses.includes(reponseDonnee)) {
+          let repUserLower = reponseDonnee.toLowerCase().trim();
+          
+          let estCorrect = q.bonnes_reponses.some(bonneRep => 
+            bonneRep.toLowerCase().trim() === repUserLower
+          );
+          
+          if (estCorrect) {
             points++;
           }
         } else {
-            if (q.answer && reponseDonnee && q.answer.toLowerCase() === reponseDonnee.toLowerCase()) {
+            if (q.answer && q.answer.toLowerCase().trim() === reponseDonnee.toLowerCase().trim()) {
                 points++;
             }
         }
