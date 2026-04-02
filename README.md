@@ -46,7 +46,7 @@ Windows :
 cd api
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+py -m pip install -r requirements.txt
 cd ..
 ```
 
@@ -82,7 +82,7 @@ cd todo
 flask run
 ```
 Ensuite il suffit de cliquer sur le lien :
-- http://127.0.0.1:5000/quiz/api/v1.0/questionnaires
+- http://127.0.0.1:5000
 
 ### Terminal 2 - lancer le client frontend
 
